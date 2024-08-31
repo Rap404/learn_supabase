@@ -11,7 +11,13 @@ const App = () => {
     age: "",
   });
 
-  console.log(user);
+  const [user2, setUser2] = useState({
+    id: "",
+    name: "",
+    age: "",
+  });
+
+  console.log(user2);
 
   useEffect(() => {
     fetchUsers();
@@ -24,6 +30,15 @@ const App = () => {
 
   function handleChange(e) {
     setUser((prevFormData) => {
+      return {
+        ...prevFormData,
+        [e.target.name]: e.target.value,
+      };
+    });
+  }
+
+  function handleChange2(e) {
+    setUser2((prevFormData) => {
       return {
         ...prevFormData,
         [e.target.name]: e.target.value,
@@ -57,8 +72,34 @@ const App = () => {
     }
   }
 
+  function displayUser(userId) {
+    users.map((user) => {
+      if (user.id == userId) {
+        setUser2({ id: user.id, name: user.name, age: user.age });
+      }
+    });
+  }
+
+  async function updateUser(userId) {
+    const { data, error } = await supabase
+      .from("users")
+      .update({ id: user2.id, name: user2.name, age: user2.age })
+      .eq("id", userId);
+
+    fetchUsers();
+
+    if (error) {
+      console.log(error);
+    }
+
+    if (data) {
+      console.log(data);
+    }
+  }
+
   return (
     <div>
+      {/* form 1 */}
       <form onSubmit={createUser}>
         <input
           type="text"
@@ -74,6 +115,25 @@ const App = () => {
         />
 
         <button type="submit">Create</button>
+      </form>
+
+      {/* form 2 */}
+      <form onSubmit={() => updateUser(user2.id)}>
+        <input
+          type="text"
+          name="name"
+          onChange={handleChange2}
+          defaultValue={user2.name}
+        />
+        <input
+          type="text"
+          placeholder="Age"
+          name="age"
+          onChange={handleChange2}
+          defaultValue={user2.age}
+        />
+
+        <button type="submit">Save Changes</button>
       </form>
 
       <table>
@@ -98,6 +158,13 @@ const App = () => {
                   }}
                 >
                   Delete
+                </button>
+                <button
+                  onClick={() => {
+                    displayUser(user.id);
+                  }}
+                >
+                  Edit
                 </button>
               </th>
             </tr>
