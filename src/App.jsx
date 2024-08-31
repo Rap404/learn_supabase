@@ -32,7 +32,29 @@ const App = () => {
   }
 
   async function createUser() {
-    await supabase.from("users").insert({ name: user.name, age: user.age });
+    await supabase.from("users").insert({
+      name: user.name,
+      age: user.age,
+    });
+
+    fetchUsers();
+  }
+
+  async function deleteUser(userId) {
+    const { data, error } = await supabase
+      .from("users")
+      .delete()
+      .eq("id", userId);
+
+    fetchUsers();
+
+    if (error) {
+      console.log(error);
+    }
+
+    if (data) {
+      console.log(data);
+    }
   }
 
   return (
@@ -60,6 +82,7 @@ const App = () => {
             <th>Id</th>
             <th>Name</th>
             <th>Age</th>
+            <th>actions</th>
           </tr>
         </thead>
         <tbody>
@@ -68,6 +91,15 @@ const App = () => {
               <td>{user.id}</td>
               <th>{user.name}</th>
               <th>{user.age}</th>
+              <th>
+                <button
+                  onClick={() => {
+                    deleteUser(user.id);
+                  }}
+                >
+                  Delete
+                </button>
+              </th>
             </tr>
           ))}
         </tbody>
